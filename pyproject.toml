@@ -1,24 +1,7 @@
 [project]
 name = "p-shuhua"
 version = "0.1.0"
-description = ""
-authors = [
-    {name = "Rodion-AI",email = "lidofgen@gmail.com"}
-]
+description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "openai (>=2.3.0,<3.0.0)",
-    "dotenv (>=0.9.9,<0.10.0)",
-    "jupyter (>=1.1.1,<2.0.0)",
-    "ipykernel (>=7.0.1,<8.0.0)",
-    "pandas (>=2.3.3,<3.0.0)",
-    "openpyxl (>=3.1.5,<4.0.0)"
-]
-
-[tool.poetry]
-packages = [{include = "p_shuhua", from = "src"}]
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+dependencies = []
