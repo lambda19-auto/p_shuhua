@@ -8,9 +8,13 @@ import types
 import unittest
 from unittest.mock import patch
 
+from dotenv import load_dotenv
 from openai import OpenAI
 
 from agents.neuro_seller import NeuroSeller
+
+ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT / ".env")
 
 
 class TestNeuroSellerIntents(unittest.TestCase):

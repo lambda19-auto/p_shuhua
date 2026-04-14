@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from pathlib import Path
 
+from dotenv import load_dotenv
 from openai import OpenAI
 
 from .consult_agent import consult
@@ -12,6 +14,9 @@ from .goodbye_soft_agent import goodbye_soft
 from .router_agent import route_intents
 
 EXECUTION_ORDER = ["goodbye_hard", "consult", "goodbye_soft"]
+
+ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT / ".env")
 
 
 class NeuroSeller:
