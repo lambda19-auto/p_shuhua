@@ -4,12 +4,22 @@ from __future__ import annotations
 
 from pathlib import Path
 import sys
+import types
 import unittest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+
+if "openai" not in sys.modules:
+    openai_stub = types.ModuleType("openai")
+
+    class _OpenAI:  # pragma: no cover - compatibility stub for import-time only
+        pass
+
+    openai_stub.OpenAI = _OpenAI
+    sys.modules["openai"] = openai_stub
 
 from agents.neuro_seller import NeuroSeller
 
