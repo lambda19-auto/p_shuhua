@@ -8,20 +8,7 @@ import types
 import unittest
 from unittest.mock import patch
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-try:
-    import openai  # noqa: F401
-except ModuleNotFoundError:
-    openai_stub = types.ModuleType("openai")
-
-    class _OpenAI:  # pragma: no cover - compatibility stub for import-time only
-        pass
-
-    openai_stub.OpenAI = _OpenAI
-    sys.modules["openai"] = openai_stub
+from openai import OpenAI
 
 from agents.neuro_seller import NeuroSeller
 
@@ -30,7 +17,7 @@ class TestNeuroSellerIntents(unittest.TestCase):
     """Validate orchestration is resilient to malformed router output."""
 
     def setUp(self) -> None:
-        self.seller = NeuroSeller(client=object())
+        self.seller = NeuroSeller(client=OpenAI())
         self.seller.handlers = {
             "consult": lambda text, context: "consult_answer",
             "goodbye_hard": lambda text, context: "goodbye_hard_answer",
