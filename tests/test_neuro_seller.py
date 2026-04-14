@@ -12,7 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-if "openai" not in sys.modules:
+try:
+    import openai  # noqa: F401
+except ModuleNotFoundError:
     openai_stub = types.ModuleType("openai")
 
     class _OpenAI:  # pragma: no cover - compatibility stub for import-time only
