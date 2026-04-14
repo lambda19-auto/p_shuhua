@@ -7,12 +7,15 @@ from pathlib import Path
 import unittest
 
 import pandas as pd
+from dotenv import load_dotenv
 from openai import OpenAI
 
 from agents.neuro_seller import NeuroSeller
 
 ROOT = Path(__file__).resolve().parents[1]
 TESTS_DIR = ROOT / "tests"
+
+load_dotenv(ROOT / ".env")
 
 
 class TestNeuroSellerApiFromFiles(unittest.TestCase):
