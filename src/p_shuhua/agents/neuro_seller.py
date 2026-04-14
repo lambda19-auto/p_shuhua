@@ -31,12 +31,7 @@ class NeuroSeller:
         context = f"{context}\nКлиент: {text}".strip()
 
         router_result = route_intents(self.client, text, context)
-        intents = router_result.get("intents", [])
-
-        if not intents:
-            intents = ["consult"]
-
-        intents = sorted(intents, key=lambda intent: EXECUTION_ORDER.index(intent))
+        intents = self._normalize_intents(router_result.get("intents", []))
         answers: list[str] = []
 
         for intent in intents:
@@ -53,3 +48,25 @@ class NeuroSeller:
 
         final_answer = "\n".join(answers)
         return final_answer, context
+
+    def _normalize_intents(self, raw_intents: object) -> list[str]:
+        """Filter router output to known intents and sort by execution order."""
+        if not isinstance(raw_intents, list):
+            return ["consult"]
+
+        known_intents = set(EXECUTION_ORDER)
+        intents: list[str] = []
+
+        for intent in raw_intents:
+            if not isinstance(intent, str):
+                continue
+            if intent not in known_intents:
+                continue
+            if intent in intents:
+                continue
+            intents.append(intent)
+
+        if not intents:
+            return ["consult"]
+
+        return sorted(intents, key=EXECUTION_ORDER.index)
