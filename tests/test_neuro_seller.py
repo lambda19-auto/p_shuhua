@@ -2,17 +2,28 @@
 
 from __future__ import annotations
 
-import unittest
-from unittest.mock import patch
 from pathlib import Path
 import sys
+import types
+import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC_DIR = ROOT / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-from p_shuhua.agents.neuro_seller import NeuroSeller
+try:
+    import openai  # noqa: F401
+except ModuleNotFoundError:
+    openai_stub = types.ModuleType("openai")
+
+    class _OpenAI:  # pragma: no cover - compatibility stub for import-time only
+        pass
+
+    openai_stub.OpenAI = _OpenAI
+    sys.modules["openai"] = openai_stub
+
+from agents.neuro_seller import NeuroSeller
 
 
 class TestNeuroSellerIntents(unittest.TestCase):
@@ -28,7 +39,7 @@ class TestNeuroSellerIntents(unittest.TestCase):
 
     def test_run_ignores_unknown_intent_and_falls_back(self) -> None:
         with patch(
-            "p_shuhua.agents.neuro_seller.route_intents",
+            "agents.neuro_seller.route_intents",
             return_value={"intents": ["unknown_label"]},
         ):
             answer, _ = self.seller.run("Привет")
@@ -37,7 +48,7 @@ class TestNeuroSellerIntents(unittest.TestCase):
 
     def test_run_skips_unknown_and_sorts_known_intents(self) -> None:
         with patch(
-            "p_shuhua.agents.neuro_seller.route_intents",
+            "agents.neuro_seller.route_intents",
             return_value={"intents": ["goodbye_soft", "???", "consult"]},
         ):
             answer, _ = self.seller.run("Спасибо")

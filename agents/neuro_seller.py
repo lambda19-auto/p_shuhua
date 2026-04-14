@@ -6,10 +6,10 @@ from collections.abc import Callable
 
 from openai import OpenAI
 
-from p_shuhua.agents.consult_agent import consult
-from p_shuhua.agents.goodbye_hard_agent import goodbye_hard
-from p_shuhua.agents.goodbye_soft_agent import goodbye_soft
-from p_shuhua.agents.router_agent import route_intents
+from .consult_agent import consult
+from .goodbye_hard_agent import goodbye_hard
+from .goodbye_soft_agent import goodbye_soft
+from .router_agent import route_intents
 
 EXECUTION_ORDER = ["goodbye_hard", "consult", "goodbye_soft"]
 
