@@ -69,7 +69,11 @@ def route_intents(
     Сообщение: {answer}
     """
 
-    completion = client.responses.create(model=model, input=message)
+    completion = client.responses.create(
+        model=model,
+        input=message,
+        reasoning={"effort": "minimal"},
+    )
     raw = completion.output_text or ""
 
     try:

@@ -56,7 +56,11 @@ def goodbye_soft(
     Сообщение: {answer}
     """
 
-    completion = client.responses.create(model=model, input=message)
+    completion = client.responses.create(
+        model=model,
+        input=message,
+        reasoning={"effort": "minimal"},
+    )
     result = completion.output_text
 
     if verbose:
