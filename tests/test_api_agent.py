@@ -46,6 +46,8 @@ class TestNeuroSellerApiFromFiles(unittest.TestCase):
 
         if "response" not in frame.columns:
             frame["response"] = ""
+        else:
+            frame["response"] = frame["response"].astype(object)
 
         processed = 0
         for row_index, request in frame["request"].items():
