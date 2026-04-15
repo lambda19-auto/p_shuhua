@@ -16,3 +16,7 @@ __pycache__/
 # secrets
 .env
 *.env
+
+# table
+tests/for_test_consult.xlsx
+tests/for_test_goodbye.xlsx
