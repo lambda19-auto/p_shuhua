@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import os
+
 from openai import OpenAI
+
+from .openai_call import generate_text
 
 INSTRUCTION = """
 Ты — Дарья, менеджер по продажам.
@@ -32,7 +36,7 @@ INSTRUCTION = """
     3. Точка.
 """.strip()
 
-MODEL = "gpt-5-nano-2025-08-07"
+MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 
 
 def goodbye_soft(
@@ -56,8 +60,7 @@ def goodbye_soft(
     Сообщение: {answer}
     """
 
-    completion = client.responses.create(model=model, input=message)
-    result = completion.output_text
+    result = generate_text(client=client, model=model, message=message)
 
     if verbose:
         print("\n goodbye_soft: \n", result)
