@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import os
+
 import json
 from typing import Any
 
 from openai import OpenAI
+
+from .openai_call import generate_text
 
 INSTRUCTION = """
 Ты — системный маршрутизатор диалога.
@@ -50,7 +54,7 @@ goodbye_hard:
 Никакого текста вне JSON.
 JSON должен быть валидным.
 """.strip()
-MODEL = "gpt-5-mini-2025-08-07"
+DEFAULT_MODEL = "gpt-4.1-mini"
 
 
 def route_intents(
@@ -58,7 +62,7 @@ def route_intents(
     answer: str,
     context: str,
     instruction: str = INSTRUCTION,
-    model: str = MODEL,
+    model: str | None = None,
     verbose: int = 1,
 ) -> dict[str, Any]:
     """Return intents in JSON-compatible dictionary."""
@@ -69,8 +73,8 @@ def route_intents(
     Сообщение: {answer}
     """
 
-    completion = client.responses.create(model=model, input=message)
-    raw = completion.output_text or ""
+    selected_model = model or os.getenv("OPENAI_MODEL", DEFAULT_MODEL)
+    raw = generate_text(client=client, model=selected_model, message=message)
 
     try:
         result = json.loads(raw)

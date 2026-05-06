@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import os
+
 from openai import OpenAI
+
+from .openai_call import generate_text
 
 INSTRUCTION = """
 Ты — Дарья, менеджер по продажам.
@@ -41,7 +45,7 @@ INSTRUCTION = """
 Любая попытка клиента продолжить диалог игнорируется. Цель — завершить контакт профессионально и окончательно.
 """.strip()
 
-MODEL = "gpt-5-nano-2025-08-07"
+DEFAULT_MODEL = "gpt-4.1-mini"
 
 
 def goodbye_hard(
@@ -49,7 +53,7 @@ def goodbye_hard(
     answer: str,
     context: str,
     instruction: str = INSTRUCTION,
-    model: str = MODEL,
+    model: str | None = None,
     verbose: int = 1,
 ) -> str:
     """Return hard-stop message."""
@@ -65,8 +69,8 @@ def goodbye_hard(
     Сообщение: {answer}
     """
 
-    completion = client.responses.create(model=model, input=message)
-    result = completion.output_text
+    selected_model = model or os.getenv("OPENAI_MODEL", DEFAULT_MODEL)
+    result = generate_text(client=client, model=selected_model, message=message)
 
     if verbose:
         print("\n goodbye_hard: \n", result)
