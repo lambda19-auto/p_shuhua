@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import os
+
 from openai import OpenAI
+
+from .openai_call import generate_text
 
 INSTRUCTION = """
 1. Роль и Контекст
@@ -117,7 +121,7 @@ Telegram: @R09iON
 
 Вести диалог как управленческий консультант.
 """.strip()
-MODEL = "gpt-5-mini-2025-08-07"
+DEFAULT_MODEL = "gpt-4.1-mini"
 
 
 def consult(
@@ -125,7 +129,7 @@ def consult(
     answer: str,
     context: str,
     instruction: str = INSTRUCTION,
-    model: str = MODEL,
+    model: str | None = None,
     verbose: int = 1,
 ) -> str:
     """Return consult message."""
@@ -141,8 +145,8 @@ def consult(
     Сообщение: {answer}
     """
 
-    completion = client.responses.create(model=model, input=message)
-    result = completion.output_text
+    selected_model = model or os.getenv("OPENAI_MODEL") or DEFAULT_MODEL
+    result = generate_text(client=client, model=selected_model, message=message)
 
     if verbose:
         print("\n consult: \n", result)

@@ -41,3 +41,26 @@ RUN_API_TESTS=1 python -m unittest -v tests.test_api_agent
 ```bash
 RUN_API_TESTS=1 API_TEST_LIMIT=10 python -m unittest -v tests.test_api_agent
 ```
+
+
+## Конфигурация модели
+
+Модель OpenAI задаётся через переменную окружения `OPENAI_MODEL` в файле `.env`.
+
+Пример:
+
+```env
+OPENAI_API_KEY=your_api_key
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+Если `OPENAI_MODEL` не задана, по умолчанию используется `gpt-4.1-mini`.
+
+
+### Способ вызова моделей
+
+В проекте используется адаптер вызова OpenAI в `agents/openai_call.py`:
+- для семейства `gpt-4.1*` используется `client.chat.completions.create(...)`;
+- для остальных моделей (включая `gpt-5*`) используется `client.responses.create(...)`.
+
+Это позволяет переключать `OPENAI_MODEL` в `.env` без изменения кода агентов.
