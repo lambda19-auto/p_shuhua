@@ -145,7 +145,7 @@ def consult(
     Сообщение: {answer}
     """
 
-    selected_model = model or os.getenv("OPENAI_MODEL", DEFAULT_MODEL)
+    selected_model = model or os.getenv("OPENAI_MODEL") or DEFAULT_MODEL
     result = generate_text(client=client, model=selected_model, message=message)
 
     if verbose:
