@@ -39,18 +39,21 @@ class TestNeuroSellerApiFromFiles(unittest.TestCase):
         if not source_file.exists():
             raise FileNotFoundError(f"Test file not found: {source_file}")
 
-        frame = pd.read_excel(source_file)
+        frame = pd.read_excel(source_file, dtype={"response": str})
 
         if "request" not in frame.columns:
             raise AssertionError(f"Column 'request' not found in {source_file}")
 
         if "response" not in frame.columns:
             frame["response"] = ""
-
+        
+        frame["request"] = frame["request"].fillna("").astype(str)
+        
         processed = 0
         for row_index, request in frame["request"].items():
-            request_text = "" if pd.isna(request) else str(request).strip()
-            if not request_text:
+            request_text = request.strip()
+        
+            if request_text == "":
                 continue
 
             answer, _ = self.seller.run(request_text)
