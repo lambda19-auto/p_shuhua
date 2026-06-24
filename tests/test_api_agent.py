@@ -1,4 +1,4 @@
-"""API integration test that processes Excel datasets and writes generated responses."""
+"""API integration test for full system routing via router agent."""
 
 from __future__ import annotations
 
@@ -8,23 +8,21 @@ from pathlib import Path
 import unittest
 
 import pandas as pd
-from dotenv import load_dotenv
-from openai import AsyncOpenAI
+from dotenv import load_dotenv, find_dotenv
+from agents import Runner
 
-from agents import Runner  # type: ignore
+from neuro_seller.router import router_agent
 
-from neuro_seller.consult import consult_agent
-from neuro_seller.goodbye_soft import goodbye_soft_agent
 
+# Load .env using find_dotenv (more robust in monorepos / nested runs)
+load_dotenv(find_dotenv())
 
 ROOT = Path(__file__).resolve().parents[1]
 TESTS_DIR = ROOT / "tests"
 
-load_dotenv(ROOT / ".env")
 
-
-class TestApiAgentFromExcel(unittest.TestCase):
-    """Integration test using real OpenAI API."""
+class TestApiSystemFromExcel(unittest.TestCase):
+    """Integration test for full routing system (router + tools)."""
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -36,14 +34,43 @@ class TestApiAgentFromExcel(unittest.TestCase):
         if not os.getenv("OPENAI_API_KEY"):
             raise RuntimeError("OPENAI_API_KEY is not configured.")
 
-        cls.client = AsyncOpenAI()
+    def _extract_toolspan(self, result) -> str:
+        """
+        Extract tool/agent used by router (Agent-as-Tool).
+        Fallback: 'unknown'
+        """
+        try:
+            for item in getattr(result, "new_items", []):
 
-    def _process_file(
-        self,
-        source_file: str,
-        result_file: str,
-        agent,
-    ) -> None:
+                # direct name (newer SDK)
+                name = getattr(item, "name", None)
+                if name:
+                    return str(name)
+
+                # raw item fallback
+                raw = getattr(item, "raw_item", None)
+                if raw:
+                    name = getattr(raw, "name", None)
+                    if name:
+                        return str(name)
+
+        except Exception:
+            pass
+
+        return "unknown"
+
+    async def _run_once(self, text: str) -> tuple[str, str]:
+        result = await Runner.run(
+            starting_agent=router_agent,
+            input=text,
+        )
+
+        response = str(result.final_output)
+        toolspan = self._extract_toolspan(result)
+
+        return response, toolspan
+
+    def _process_file(self, source_file: str, result_file: str) -> None:
         input_path = TESTS_DIR / source_file
 
         if not input_path.exists():
@@ -52,32 +79,30 @@ class TestApiAgentFromExcel(unittest.TestCase):
         df = pd.read_excel(input_path)
 
         if "request" not in df.columns:
-            self.fail(
-                f"Column 'request' not found in {source_file}"
-            )
+            self.fail(f"Column 'request' not found in {source_file}")
 
         limit = os.getenv("API_TEST_LIMIT")
-
         if limit:
             df = df.head(int(limit))
 
         responses: list[str] = []
-
-        async def generate(text: str) -> str:
-            result = await Runner.run(
-                starting_agent=agent,
-                input=text,
-            )
-            return str(result.final_output)
+        toolspans: list[str] = []
 
         for request in df["request"].fillna("").astype(str):
-            response = asyncio.run(generate(request))
+            response, toolspan = asyncio.run(self._run_once(request))
             responses.append(response)
+            toolspans.append(toolspan)
 
-        df["response"] = responses
+        output_df = pd.DataFrame(
+            {
+                "request": df["request"],
+                "response": responses,
+                "toolspan": toolspans,
+            }
+        )
 
         output_path = TESTS_DIR / result_file
-        df.to_excel(output_path, index=False)
+        output_df.to_excel(output_path, index=False)
 
         print(f"\nSaved: {output_path}")
 
@@ -85,14 +110,12 @@ class TestApiAgentFromExcel(unittest.TestCase):
         self._process_file(
             source_file="for_test_consult.xlsx",
             result_file="result_consult.xlsx",
-            agent=consult_agent,
         )
 
     def test_process_goodbye(self) -> None:
         self._process_file(
             source_file="for_test_goodbye.xlsx",
             result_file="result_goodbye.xlsx",
-            agent=goodbye_soft_agent,
         )
 
 
