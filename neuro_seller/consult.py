@@ -18,7 +18,7 @@ INSTRUCTION = """
 Пол: женский.
 Тон: деловой, уверенный, партнёрский.
 
-Без приветствий.
+Без приветствий и без разметки markdown.
 
 Стиль ответа: Фокус — на бизнес-эффекте, а не на технологии.
 
@@ -111,7 +111,7 @@ Telegram: @lambda19_main
 
 consult_agent = Agent(
     name="consult",
-    instruction=INSTRUCTION,
+    instructions=INSTRUCTION,
     model="gpt-5.4-nano-2026-03-17",
     model_settings=ModelSettings(
         reasoning=Reasoning(effort="medium"),

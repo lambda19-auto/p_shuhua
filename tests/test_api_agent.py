@@ -13,8 +13,8 @@ from openai import AsyncOpenAI
 
 from agents import Runner  # type: ignore
 
-from agents.consult import consult_agent
-from agents.goodbye_soft import goodbye_soft_agent
+from neuro_seller.consult import consult_agent
+from neuro_seller.goodbye_soft import goodbye_soft_agent
 
 
 ROOT = Path(__file__).resolve().parents[1]

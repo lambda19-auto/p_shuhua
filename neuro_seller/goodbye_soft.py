@@ -33,10 +33,10 @@ INSTRUCTION = """
 
 goodbye_soft_agent = Agent(
     name="goodbye_soft",
-    instruction=INSTRUCTION,
+    instructions=INSTRUCTION,
     model="gpt-5.4-nano-2026-03-17",
     model_settings=ModelSettings(
-        reasoning=Reasoning(effort="minimal"),
+        reasoning=Reasoning(effort="none"),
         verbosity="low"
     )
 )

@@ -1,11 +1,15 @@
 """Router agent for intent detection."""
 from openai.types.shared import Reasoning
 from agents import Agent, ModelSettings, Runner  #type:ignore
+import asyncio
+from dotenv import load_dotenv, find_dotenv
 
 from .consult import consult_agent
 from .goodbye_hard import goodbye_hard_agent
 from .goodbye_soft import goodbye_soft_agent
 
+
+load_dotenv(find_dotenv())
 
 INSTRUCTION = """
 # Роль
@@ -57,7 +61,7 @@ INSTRUCTION = """
 * благодарит;
 * сообщает, что получил нужную информацию;
 * прощается;
-* завершает разговор без негатива.
+* завершает разговор.
 
 Примеры:
 
@@ -71,7 +75,7 @@ INSTRUCTION = """
 
 ## goodbye_hard
 
-Выбирай этот агент, если клиент проявляет негатив или не хочет продолжать общение.
+Выбирай этот агент, если клиент оскорбляет или не хочет продолжать общение.
 
 Сюда относятся:
 
@@ -80,8 +84,7 @@ INSTRUCTION = """
 * грубость;
 * токсичность;
 * угрозы;
-* унижение сотрудников;
-* унижение компании;
+* унижения;
 * обвинения;
 * отказ от услуг;
 * отказ от общения;
@@ -106,10 +109,10 @@ INSTRUCTION = """
 
 router_agent = Agent(
     name="router",
-    instruction=INSTRUCTION,
+    instructions=INSTRUCTION,
     model="gpt-5.4-nano-2026-03-17",
     model_settings=ModelSettings(
-        reasoning=Reasoning(effort="minimal"), 
+        reasoning=Reasoning(effort="none"), 
         verbosity="low"),
     tools=[
         consult_agent.as_tool(
@@ -122,7 +125,7 @@ router_agent = Agent(
         ),
         goodbye_hard_agent.as_tool(
             tool_name="goodbye_hard",
-            tool_description="Клиент проявляет негатив или не хочет продолжать общение."
+            tool_description="Клиент оскорбляет или не хочет продолжать общение."
         )
     ],
     tool_use_behavior="stop_on_first_tool"
@@ -133,3 +136,6 @@ async def main():
         router_agent, 
         input="Здравствуйте, получил ваше письмо и хотел бы уточнить детали.")
     print(result.final_output)
+
+if __name__ == "__main__":
+    asyncio.run(main())
