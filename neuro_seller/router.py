@@ -1,7 +1,10 @@
 """Router agent for intent detection."""
+import asyncio
+import uuid_utils
+
 from openai.types.shared import Reasoning
 from agents import Agent, ModelSettings, Runner  #type:ignore
-import asyncio
+from agents.extensions.memory import AsyncSQLiteSession
 from dotenv import load_dotenv, find_dotenv
 
 from .consult import consult_agent
@@ -132,10 +135,18 @@ router_agent = Agent(
 )
 
 async def main():
-    result = await Runner.run(
-        router_agent, 
-        input="Здравствуйте, получил ваше письмо и хотел бы уточнить детали.")
-    print(result.final_output)
+    user_id = str(uuid_utils.uuid7())
+    session = AsyncSQLiteSession(user_id, db_path="users.db")
+
+    try:
+        result = await Runner.run(
+            router_agent, 
+            input="Здравствуйте, получил ваше письмо и хотел бы уточнить детали.",
+            session=session)
+        print(result.final_output)
+
+    finally:
+        await session.close()
 
 if __name__ == "__main__":
     asyncio.run(main())

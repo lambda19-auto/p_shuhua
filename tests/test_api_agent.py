@@ -1,5 +1,4 @@
 """API integration test for full system routing via router agent."""
-
 from __future__ import annotations
 
 import asyncio
@@ -8,8 +7,11 @@ from pathlib import Path
 import unittest
 
 import pandas as pd
+import uuid_utils
+
 from dotenv import load_dotenv, find_dotenv
 from agents import Runner
+from agents.extensions.memory import AsyncSQLiteSession
 
 from neuro_seller.router import router_agent
 
@@ -59,16 +61,28 @@ class TestApiSystemFromExcel(unittest.TestCase):
 
         return "unknown"
 
-    async def _run_once(self, text: str) -> tuple[str, str]:
-        result = await Runner.run(
-            starting_agent=router_agent,
-            input=text,
+    async def _run_once(self, text: str) -> tuple[str, str, str]:
+        session_id = str(uuid_utils.uuid7())
+
+        session = AsyncSQLiteSession(
+            session_id=session_id,
+            db_path="users.db",
         )
 
-        response = str(result.final_output)
-        toolspan = self._extract_toolspan(result)
+        try:
+            result = await Runner.run(
+                starting_agent=router_agent,
+                input=text,
+                session=session,
+            )
 
-        return response, toolspan
+            response = str(result.final_output)
+            toolspan = self._extract_toolspan(result)
+
+            return response, toolspan, session_id
+
+        finally:
+            await session.close()
 
     def _process_file(self, source_file: str, result_file: str) -> None:
         input_path = TESTS_DIR / source_file
@@ -87,17 +101,24 @@ class TestApiSystemFromExcel(unittest.TestCase):
 
         responses: list[str] = []
         toolspans: list[str] = []
+        session_ids: list[str] = []
 
         for request in df["request"].fillna("").astype(str):
-            response, toolspan = asyncio.run(self._run_once(request))
+            response, toolspan, session_id = asyncio.run(
+                self._run_once(request)
+            )
+
             responses.append(response)
             toolspans.append(toolspan)
+            session_ids.append(session_id)
 
         output_df = pd.DataFrame(
             {
+                "row_id": range(1, len(df) + 1),
                 "request": df["request"],
                 "response": responses,
                 "toolspan": toolspans,
+                "session_id": session_ids,
             }
         )
 
