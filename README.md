@@ -32,6 +32,8 @@ tests/result_goodbye.xlsx
 
 ```text
 response
+session_id
+toolspan
 ```
 
 ---
@@ -72,4 +74,4 @@ RUN_API_TESTS=1 API_TEST_LIMIT=10 python -m unittest -v tests.test_api_agent
 | Сколько стоит внедрение?                     |
 | Спасибо, всё понятно                         |
 
-Колонка `response` будет создана автоматически.
+Колонка `response`, `session_id`, `toolspan` будет создана автоматически.
