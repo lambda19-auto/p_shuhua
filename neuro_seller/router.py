@@ -1,10 +1,11 @@
 """Router agent for intent detection."""
 import asyncio
+import os
 import uuid_utils
 
 from openai.types.shared import Reasoning
 from agents import Agent, ModelSettings, Runner  #type:ignore
-from agents.extensions.memory import AsyncSQLiteSession
+from agents.extensions.memory import SQLAlchemySession
 from dotenv import load_dotenv, find_dotenv
 
 from .consult import consult_agent
@@ -13,6 +14,11 @@ from .goodbye_soft import goodbye_soft_agent
 
 
 load_dotenv(find_dotenv())
+
+database_url = os.getenv("DATABASE_URL")
+
+if database_url is None:
+    raise RuntimeError("DATABASE_URL is not set")
 
 INSTRUCTION = """
 # Роль
@@ -134,19 +140,25 @@ router_agent = Agent(
     tool_use_behavior="stop_on_first_tool"
 )
 
-async def main():
+async def main(database_url: str):
     user_id = str(uuid_utils.uuid7())
-    session = AsyncSQLiteSession(user_id, db_path="users.db")
+
+    session = SQLAlchemySession.from_url(
+        session_id=user_id,
+        url=database_url,
+        create_tables=True,
+    )
 
     try:
         result = await Runner.run(
-            router_agent, 
+            router_agent,
             input="Здравствуйте, получил ваше письмо и хотел бы уточнить детали.",
-            session=session)
+            session=session,
+        )
         print(result.final_output)
 
     finally:
-        await session.close()
+        await session.engine.dispose()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main(database_url=database_url))
