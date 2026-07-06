@@ -1,9 +1,6 @@
-"""Consult agent for discovery-style sales replies."""
-from openai.types.shared import Reasoning
-from agents import Agent, ModelSettings #type:ignore
+import { Agent } from '@openai/agents';
 
-
-INSTRUCTION = """
+export const CONSULT_INSTRUCTION = `
 1. Роль и Контекст
 
 Ты — профессиональный консультант по AI-решениям компании lambda19.
@@ -108,14 +105,14 @@ Telegram: @lambda19_main
 Главная цель:
 
 Вести диалог как управленческий консультант.
-""".strip()
+`.trim();
 
-consult_agent = Agent(
-    name="consult",
-    instructions=INSTRUCTION,
-    model="gpt-5.4-nano-2026-03-17",
-    model_settings=ModelSettings(
-        reasoning=Reasoning(effort="medium"),
-        verbosity="low"
-    )
-)
+export const consultAgent = new Agent({
+  name: 'consult',
+  instructions: CONSULT_INSTRUCTION,
+  model: 'gpt-5.4-nano-2026-03-17',
+  modelSettings: {
+    reasoning: { effort: 'medium' },
+    text: { verbosity: 'low' },
+  },
+});

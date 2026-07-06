@@ -1,18 +1,6 @@
-# virtual enviroments
-venv/
-.venv/
-
-# system
-__pycache__/
-*.pyc
-
-# IDE
-.idea/
-.vscode/
-
-# Jupyter
-.ipynb_checkpoints/
-
-# secrets
+node_modules/
+dist/
 .env
-*.env
+users.db
+coverage/
+tests/result_*.xlsx

@@ -1,11 +1,52 @@
-# Testing
+# p-shuhua
 
-## Integration API Test
+TypeScript implementation of the `lambda19` sales-routing AI agent.
+
+The project uses the official OpenAI Agents SDK for TypeScript (`@openai/agents`). The router agent reads a customer message, chooses one of the specialized agents through `Agent.asTool(...)`, and returns the first tool result with `toolUseBehavior: 'stop_on_first_tool'`.
+
+## Structure
+
+```text
+src/main.ts
+src/neuro-seller/router.ts
+src/neuro-seller/consult.ts
+src/neuro-seller/goodbye-soft.ts
+src/neuro-seller/goodbye-hard.ts
+tests/test-api-agent.test.ts
+```
+
+## Environment
+
+Create `.env` in the repository root:
+
+```env
+OPENAI_API_KEY=your_api_key
+```
+
+## Install
+
+```bash
+npm install
+```
+
+## Type check
+
+```bash
+npm run build
+```
+
+## Run a single request
+
+```bash
+npm start -- "Здравствуйте, получил ваше письмо и хотел бы уточнить детали."
+```
+
+## Integration API test
 
 File:
 
 ```text
-tests/test_api_agent.py
+tests/test-api-agent.test.ts
 ```
 
 Input data:
@@ -36,36 +77,16 @@ session_id
 toolspan
 ```
 
-## Running
-
-Before running, configure `.env`:
-
-```env
-OPENAI_API_KEY=your_api_key
-```
-
 Run:
 
 ```bash
-RUN_API_TESTS=1 python -m unittest -v tests.test_api_agent
+RUN_API_TESTS=1 npm run test:api
 ```
 
-## Row limit
-
-For quick testing, you can process only the first N rows:
+For quick testing, process only the first N rows:
 
 ```bash
-RUN_API_TESTS=1 API_TEST_LIMIT=10 python -m unittest -v tests.test_api_agent
+RUN_API_TESTS=1 API_TEST_LIMIT=10 npm run test:api
 ```
 
-## Excel format
-
-Example:
-
-| request                               |
-| ------------------------------------- |
-| Hello, tell me more about the service |
-| How much does implementation cost?    |
-| Thanks, everything is clear           |
-
-The columns `response`, `session_id`, `toolspan` will be created automatically.
+Without `RUN_API_TESTS=1`, API tests are skipped so local checks can run without credentials or network calls.
