@@ -1,0 +1,24 @@
+{
+  "name": "p-shuhua",
+  "version": "1.0.0",
+  "description": "ai-agent for web site lambda19.org",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "test": "tsx --test tests/test-api-agent.ts",
+    "test:api": "RUN_API_TESTS=1 tsx --test tests/test-api-agent.ts"
+  },
+  "dependencies": {
+    "@openai/agents": "^0.13.0",
+    "dotenv": "^16.4.7",
+    "xlsx": "^0.18.5",
+    "uuidv7": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

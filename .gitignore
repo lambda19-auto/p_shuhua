@@ -1,8 +1,12 @@
-# virtual enviroments
+# dependencies and builds
+node_modules/
+dist/
+
+# virtual environments
 venv/
 .venv/
 
-# system
+# Python leftovers/cache
 __pycache__/
 *.pyc
 
@@ -13,6 +17,8 @@ __pycache__/
 # Jupyter
 .ipynb_checkpoints/
 
-# secrets
+# secrets and local runtime data
 .env
 *.env
+users.db
+tests/result_*.xlsx

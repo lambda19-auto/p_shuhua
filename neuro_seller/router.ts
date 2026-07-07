@@ -1,26 +1,12 @@
-"""Router agent for intent detection."""
-import asyncio
-import os
-import uuid_utils
+import 'dotenv/config';
+import { Agent, MemorySession, run } from '@openai/agents';
+import { uuidv7 } from 'uuidv7';
 
-from openai.types.shared import Reasoning
-from agents import Agent, ModelSettings, Runner  #type:ignore
-from agents.extensions.memory import SQLAlchemySession
-from dotenv import load_dotenv, find_dotenv
+import { consultAgent } from './consult.js';
+import { goodbyeHardAgent } from './goodbye-hard.js';
+import { goodbyeSoftAgent } from './goodbye-soft.js';
 
-from .consult import consult_agent
-from .goodbye_hard import goodbye_hard_agent
-from .goodbye_soft import goodbye_soft_agent
-
-
-load_dotenv(find_dotenv())
-
-database_url = os.getenv("DATABASE_URL")
-
-if database_url is None:
-    raise RuntimeError("DATABASE_URL is not set")
-
-INSTRUCTION = """
+export const INSTRUCTION = `
 # Роль
 
 Ты сотрудник отдела маршрутизации обращений клиентов.
@@ -113,52 +99,54 @@ INSTRUCTION = """
 * Хватит мне писать.
 
 ---
-""".strip()
+`.trim();
 
+export const routerAgent = new Agent({
+  name: 'router',
+  instructions: INSTRUCTION,
+  model: 'gpt-5.4-nano-2026-03-17',
+  modelSettings: {
+    reasoning: { effort: 'none' },
+    text: { verbosity: 'low' },
+  },
+  tools: [
+    consultAgent.asTool({
+      toolName: 'consult',
+      toolDescription: 'Ответы на вопросы клиента и консультация по услугам.',
+    }),
+    goodbyeSoftAgent.asTool({
+      toolName: 'goodbye_soft',
+      toolDescription: 'Клиент вежливо завершает общение',
+    }),
+    goodbyeHardAgent.asTool({
+      toolName: 'goodbye_hard',
+      toolDescription: 'Клиент оскорбляет или не хочет продолжать общение.',
+    }),
+  ],
+  toolUseBehavior: 'stop_on_first_tool',
+});
 
-router_agent = Agent(
-    name="router",
-    instructions=INSTRUCTION,
-    model="gpt-5.4-nano-2026-03-17",
-    model_settings=ModelSettings(
-        reasoning=Reasoning(effort="none"), 
-        verbosity="low"),
-    tools=[
-        consult_agent.as_tool(
-            tool_name="consult",
-            tool_description="Ответы на вопросы клиента и консультация по услугам."
-        ),
-        goodbye_soft_agent.as_tool(
-            tool_name="goodbye_soft",
-            tool_description="Клиент вежливо завершает общение"
-        ),
-        goodbye_hard_agent.as_tool(
-            tool_name="goodbye_hard",
-            tool_description="Клиент оскорбляет или не хочет продолжать общение."
-        )
-    ],
-    tool_use_behavior="stop_on_first_tool"
-)
+export async function runRouterOnce(input: string, sessionId = uuidv7()) {
+  const session = new MemorySession({ sessionId });
+  const result = await run(routerAgent, input, { session });
 
-async def main(database_url: str):
-    user_id = str(uuid_utils.uuid7())
+  return {
+    response: String(result.finalOutput ?? ''),
+    sessionId,
+    result,
+  };
+}
 
-    session = SQLAlchemySession.from_url(
-        session_id=user_id,
-        url=database_url,
-        create_tables=True,
-    )
+export async function main() {
+  const { response } = await runRouterOnce(
+    'Здравствуйте, получил ваше письмо и хотел бы уточнить детали.',
+  );
+  console.log(response);
+}
 
-    try:
-        result = await Runner.run(
-            router_agent,
-            input="Здравствуйте, получил ваше письмо и хотел бы уточнить детали.",
-            session=session,
-        )
-        print(result.final_output)
-
-    finally:
-        await session.engine.dispose()
-
-if __name__ == "__main__":
-    asyncio.run(main(database_url=database_url))
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((error: unknown) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

@@ -1,11 +1,39 @@
-# Testing
+# p-shuhua
+
+TypeScript AI-agent for lambda19.org based on the OpenAI Agents SDK.
+
+## Setup
+
+Configure `.env`:
+
+```env
+OPENAI_API_KEY=your_api_key
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Build:
+
+```bash
+npm run build
+```
+
+Run the sample router request:
+
+```bash
+npm start
+```
 
 ## Integration API Test
 
 File:
 
 ```text
-tests/test_api_agent.py
+tests/test-api-agent.ts
 ```
 
 Input data:
@@ -36,31 +64,19 @@ session_id
 toolspan
 ```
 
-## Running
-
-Before running, configure `.env`:
-
-```env
-OPENAI_API_KEY=your_api_key
-```
-
-Run:
+Run API tests:
 
 ```bash
-RUN_API_TESTS=1 python -m unittest -v tests.test_api_agent
+npm run test:api
 ```
 
-## Row limit
-
-For quick testing, you can process only the first N rows:
+For quick testing, process only the first N rows:
 
 ```bash
-RUN_API_TESTS=1 API_TEST_LIMIT=10 python -m unittest -v tests.test_api_agent
+RUN_API_TESTS=1 API_TEST_LIMIT=10 tsx --test tests/test-api-agent.ts
 ```
 
 ## Excel format
-
-Example:
 
 | request                               |
 | ------------------------------------- |
@@ -68,4 +84,4 @@ Example:
 | How much does implementation cost?    |
 | Thanks, everything is clear           |
 
-The columns `response`, `session_id`, `toolspan` will be created automatically.
+The columns `response`, `session_id`, and `toolspan` are created automatically.
