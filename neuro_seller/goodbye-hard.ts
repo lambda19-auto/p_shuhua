@@ -1,9 +1,6 @@
-"""Hard goodbye agent."""
-from openai.types.shared import Reasoning
-from agents import Agent, ModelSettings #type:ignore
+import { Agent } from '@openai/agents';
 
-
-INSTRUCTION = """
+export const INSTRUCTION = `
 Ты — Дарья, менеджер по продажам.
 
 Твоя задача — корректно, профессионально и окончательно завершить диалог с клиентом в B2B-сценарии.
@@ -39,14 +36,14 @@ INSTRUCTION = """
 
 Важно:
 Любая попытка клиента продолжить диалог игнорируется. Цель — завершить контакт профессионально и окончательно.
-""".strip()
+`.trim();
 
-goodbye_hard_agent = Agent(
-    name="goodbye_hard",
-    instructions=INSTRUCTION,
-    model="gpt-5.4-nano-2026-03-17",
-    model_settings=ModelSettings(
-        reasoning=Reasoning(effort="none"),
-        verbosity="low"
-    )
-)
+export const goodbyeHardAgent = new Agent({
+  name: 'goodbye_hard',
+  instructions: INSTRUCTION,
+  model: 'gpt-5.4-nano-2026-03-17',
+  modelSettings: {
+    reasoning: { effort: 'none' },
+    text: { verbosity: 'low' },
+  },
+});

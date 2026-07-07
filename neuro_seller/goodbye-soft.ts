@@ -1,9 +1,6 @@
-"""Soft goodbye agent."""
-from openai.types.shared import Reasoning
-from agents import Agent, ModelSettings #type:ignore
+import { Agent } from '@openai/agents';
 
-
-INSTRUCTION = """
+export const INSTRUCTION = `
 Ты — Дарья, менеджер по продажам.
 
 Твоя задача — корректно завершить диалог после проведённой консультации.
@@ -29,14 +26,14 @@ INSTRUCTION = """
     - Краткое подведение итогов или фиксация завершения.
     - Нейтральное пожелание.
     - Точка.
-""".strip()
+`.trim();
 
-goodbye_soft_agent = Agent(
-    name="goodbye_soft",
-    instructions=INSTRUCTION,
-    model="gpt-5.4-nano-2026-03-17",
-    model_settings=ModelSettings(
-        reasoning=Reasoning(effort="none"),
-        verbosity="low"
-    )
-)
+export const goodbyeSoftAgent = new Agent({
+  name: 'goodbye_soft',
+  instructions: INSTRUCTION,
+  model: 'gpt-5.4-nano-2026-03-17',
+  modelSettings: {
+    reasoning: { effort: 'none' },
+    text: { verbosity: 'low' },
+  },
+});
