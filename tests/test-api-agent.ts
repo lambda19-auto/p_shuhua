@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import * as XLSX from 'xlsx';
+import XLSX from 'xlsx';
 
 import { runRouterOnce } from '../neuro_seller/router.js';
 
