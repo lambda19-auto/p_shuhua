@@ -7,8 +7,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/main.js",
-    "test": "tsx --test tests/test-api-agent.ts",
-    "test:api": "RUN_API_TESTS=1 tsx --test tests/test-api-agent.ts"
+    "test": "npx tsx --test tests/test-api-agent.ts",
+    "test:api": "RUN_API_TESTS=1 npx tsx --test tests/test-api-agent.ts"
   },
   "dependencies": {
     "@openai/agents": "^0.13.0",

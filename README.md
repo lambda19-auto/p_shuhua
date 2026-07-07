@@ -73,7 +73,7 @@ npm run test:api
 For quick testing, process only the first N rows:
 
 ```bash
-RUN_API_TESTS=1 API_TEST_LIMIT=10 tsx --test tests/test-api-agent.ts
+RUN_API_TESTS=1 API_TEST_LIMIT=10 npx tsx --test tests/test-api-agent.ts
 ```
 
 ## Excel format
