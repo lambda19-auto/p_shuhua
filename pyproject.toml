@@ -1,6 +1,6 @@
 [project]
 name = "p-shuhua"
-version = "1.0.0"
+version = "1.1.0"
 description = "ai-agent for web site lambda19.org"
 readme = "README.md"
 requires-python = ">=3.14"
